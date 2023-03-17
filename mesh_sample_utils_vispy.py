@@ -28,7 +28,7 @@ class Canvas_view():
         self.view.add(self.mesh)
         self.tr = self.view.camera.transform
         self.mesh.set_data(vertices=verts, faces=faces, vertex_colors=colors[:, :3])
-        self.translate([0,0,2])
+        self.translate([-0.5, -0.5, 1.5])
         self.rotate(axis=[1,0,0], angle=180)
         self.view_changed()
 
@@ -69,21 +69,21 @@ def get_vispy_canvas(open_3d_mesh):
     faces = np.array(open_3d_mesh.triangles)
     normals = np.array(open_3d_mesh.vertex_normals)
 
-    normal_canvas = Canvas_view(45,
+    normal_canvas = Canvas_view(52,
                                 verts,
                                 faces,
                                 colors,
                                 canvas_size=512,
-                                factor=1,
-                                bgcolor='gray',
+                                factor=2,
+                                bgcolor='black',
                                 proj='perspective')
 
     return normal_canvas
 
 def get_rotated_frame(mesh, rotate_angle):
     rotated_mesh = copy.deepcopy(mesh)
-    rotate_to_torch_axis = rotated_mesh.get_rotation_matrix_from_xyz((0, 0, rotate_angle))
-    rotated_mesh.rotate(rotate_to_torch_axis, center=(0, 0, 0))
+    rotate_to_torch_axis = rotated_mesh.get_rotation_matrix_from_xyz((rotate_angle, rotate_angle, rotate_angle))
+    rotated_mesh.rotate(rotate_to_torch_axis, center=(-0.5,-0.5,0))
 
     canvas = get_vispy_canvas(rotated_mesh)
 
