@@ -6,6 +6,7 @@ from tqdm import tqdm
 from vispy import app, gloo, visuals, scene
 from vispy.scene import visuals
 from vispy.visuals.filters import Alpha
+import matplotlib.pyplot as plt
 
 class Canvas_view():
     def __init__(self,
@@ -27,7 +28,7 @@ class Canvas_view():
         self.view.add(self.mesh)
         self.tr = self.view.camera.transform
         self.mesh.set_data(vertices=verts, faces=faces, vertex_colors=colors[:, :3])
-        self.translate([0,0,0])
+        self.translate([0,0,2])
         self.rotate(axis=[1,0,0], angle=180)
         self.view_changed()
 
@@ -56,6 +57,9 @@ def rotate_mesh(mesh, rotate_angle=np.pi):
     rotate_to_torch_axis = rotated_mesh.get_rotation_matrix_from_xyz((0, 0, rotate_angle))
     rotated_mesh.rotate(rotate_to_torch_axis, center=(0, 0, 0))
 
+    rotate_to_torch_axis = rotated_mesh.get_rotation_matrix_from_xyz((np.pi, 0, 0))
+    rotated_mesh.rotate(rotate_to_torch_axis, center=(0, 0, 0))
+
     return rotated_mesh
 
 
@@ -72,7 +76,7 @@ def get_vispy_canvas(open_3d_mesh):
                                 canvas_size=512,
                                 factor=1,
                                 bgcolor='gray',
-                                proj='arcball')
+                                proj='perspective')
 
     return normal_canvas
 
