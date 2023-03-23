@@ -11,3 +11,4 @@ Pillow==9.0.0
 timm
 matplotlib
 imageio
+scipy

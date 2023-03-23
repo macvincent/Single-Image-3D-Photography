@@ -5,8 +5,11 @@ from PIL import Image
 import paddlehub as hub
 from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
 import cv2
-from utils import get_image_file_names, display_image, pad_image
+from utils import get_image_file_paths, display_image, pad_image, normalize_array
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 
 class ImageToTextModel:
@@ -23,7 +26,7 @@ class ImageToTextModel:
         )
         self.text_model.to(self.device)
 
-    def describe_image(self, image):
+    def describe_image(self, image: Image.Image) -> str:
         """
         Describe image using text model.
 
@@ -62,7 +65,7 @@ class ImageCompletionModel:
 
         self.image_to_text_model = ImageToTextModel()
 
-    def inpaint(self, image: Image.Image, mask: np.array) -> Image.Image:
+    def inpaint(self, image: Image.Image, mask: np.ndarray) -> Image.Image:
         """
         inpaint image using mask and stable diffusion inpainting model.
 
@@ -72,6 +75,8 @@ class ImageCompletionModel:
         Returns:
             inpainted_image: PIL image
         """
+
+        logging.info("Inpainting image...")
 
         input_shape = np.array(image).shape[:2][::-1]
         image = image.resize((512, 512))
@@ -98,7 +103,7 @@ class ImageCompletionModel:
         return inpainted_image
 
     def outpaint(
-        self, input_image: Image.Image, padded_image: Image.Image, mask: np.array
+        self, input_image: Image.Image, padded_image: Image.Image, mask: np.ndarray
     ) -> Image.Image:
         """
         Outpaint image using mask, stable diffusion inpainting model, and text prompt.
@@ -109,6 +114,7 @@ class ImageCompletionModel:
         Returns:
             image: PIL image
         """
+        logging.info("Outpainting image...")
 
         input_shape = np.array(padded_image).shape[:2][::-1]
         padded_image = padded_image.resize((512, 512))
@@ -145,7 +151,7 @@ class MattingModel:
     def __init__(self) -> None:
         self.matting_model = hub.Module(name="U2Net")
 
-    def get_alpha_matte(self, image: Image.Image) -> np.array:
+    def get_alpha_matte(self, image: Image.Image) -> np.ndarray:
         """
         Get alpha matte for image.
 
@@ -154,6 +160,8 @@ class MattingModel:
         Returns:
             alpha_matte: Numpy array
         """
+        logging.info("Generating alpha matte...")
+
         image = np.asarray(image)
         alpha_matte = self.matting_model.Segmentation(
             images=[image],
@@ -161,7 +169,7 @@ class MattingModel:
             batch_size=1,
             input_size=312,
             output_dir="output",
-            visualization=True,
+            visualization=False,
         )[0]["mask"]
 
         return alpha_matte
@@ -184,7 +192,7 @@ class MonocularDepthModel:
 
     def get_depth_map(
         self, image: Image.Image, gaussian_blur=True, normalize=True
-    ) -> np.array:
+    ) -> np.ndarray:
         """
         Get depth map for image.
 
@@ -193,6 +201,9 @@ class MonocularDepthModel:
         Returns:
             depth_map: Numpy array
         """
+
+        logging.info("Generating monocular depth image...")
+
         image = np.asarray(image)
         input_batch = self.transform(image).to(self.device)
         input_shape = np.array(image).shape[:2][::-1]
@@ -221,22 +232,21 @@ class MonocularDepthModel:
         )
 
         if normalize:
-            depth_map = (depth_map - depth_map.min()) / (
-                depth_map.max() - depth_map.min()
-            )
+            depth_map = normalize_array(depth_map)
 
         return depth_map
 
 
+# Export models.
+image_completion_model = ImageCompletionModel()
+matting_model = MattingModel()
+monocular_depth_model = MonocularDepthModel()
+
 if __name__ == "__main__":
-    image_name = get_image_file_names()[0]
+    image_name = get_image_file_paths()[0]
     image_path = os.path.join(os.getcwd(), image_name)
     image = Image.open(image_path).resize((400, 400))
     display_image(image)
-
-    image_completion_model = ImageCompletionModel()
-    matting_model = MattingModel()
-    monocular_depth_model = MonocularDepthModel()
 
     # Get alpha matte.
     alpha_matte = matting_model.get_alpha_matte(image)
