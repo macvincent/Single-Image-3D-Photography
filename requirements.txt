@@ -1,0 +1,13 @@
+torch
+diffusers==0.11.1
+PIL
+cv2
+transformers
+ftfy
+paddlepaddle
+paddlehub
+open3d
+Pillow==9.0.0
+timm
+matplotlib
+imageio
