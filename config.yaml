@@ -1,0 +1,6 @@
+num_frames_in_output_video: 100
+display_intermediate_output: false
+save_output_in_gif_format: true
+save_output_in_mp4_format: true
+generate_meshes: true
+sample_novel_views: true

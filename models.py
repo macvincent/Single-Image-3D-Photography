@@ -76,7 +76,7 @@ class ImageCompletionModel:
             inpainted_image: PIL image
         """
 
-        logging.info("Inpainting image...")
+        logging.info("Inpainting image.")
 
         input_shape = np.array(image).shape[:2][::-1]
         image = image.resize((512, 512))
@@ -114,7 +114,7 @@ class ImageCompletionModel:
         Returns:
             image: PIL image
         """
-        logging.info("Outpainting image...")
+        logging.info("Outpainting image.")
 
         input_shape = np.array(padded_image).shape[:2][::-1]
         padded_image = padded_image.resize((512, 512))
@@ -160,7 +160,7 @@ class MattingModel:
         Returns:
             alpha_matte: Numpy array
         """
-        logging.info("Generating alpha matte...")
+        logging.info("Generating alpha matte.")
 
         image = np.asarray(image)
         alpha_matte = self.matting_model.Segmentation(
@@ -202,7 +202,7 @@ class MonocularDepthModel:
             depth_map: Numpy array
         """
 
-        logging.info("Generating monocular depth image...")
+        logging.info("Generating monocular depth image.")
 
         image = np.asarray(image)
         input_batch = self.transform(image).to(self.device)
@@ -226,7 +226,8 @@ class MonocularDepthModel:
             pooling = th.nn.MaxPool1d(kernel_size=5, stride=1)
             disparity = pooling(th.from_numpy(disparity).float())
 
-        depth_map = 1 / disparity
+        # generate depth while ignoring extremly distant values
+        depth_map = 1 / np.maximum(disparity, 2)
         depth_map = cv2.resize(
             np.array(depth_map), input_shape, interpolation=cv2.INTER_AREA
         )
@@ -237,7 +238,7 @@ class MonocularDepthModel:
         return depth_map
 
 
-# Export models.
+# load models.
 image_completion_model = ImageCompletionModel()
 matting_model = MattingModel()
 monocular_depth_model = MonocularDepthModel()

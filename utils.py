@@ -48,7 +48,7 @@ def get_image_file_paths() -> list:
     return image_file_names
 
 
-def display_image(image: Image.Image) -> None:
+def display_image(image: Image.Image, frame_name="Display Inage") -> None:
     """
     Display image using matplotlib.
 
@@ -59,6 +59,7 @@ def display_image(image: Image.Image) -> None:
         None
     """
     plt.imshow(image)
+    plt.title(frame_name)
     plt.show()
 
 

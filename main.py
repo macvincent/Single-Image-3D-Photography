@@ -4,15 +4,27 @@ from utils import (
     normalize_alpha_matte,
     normalize_array,
     depth_based_soft_foreground_pixel_visibility_map,
+    display_image,
 )
-from mesh import create_mesh
+from mesh_utils import create_mesh, sample_novel_views
 import os
 from PIL import Image
 from models import image_completion_model, matting_model, monocular_depth_model
 import numpy as np
+import argparse
+from omegaconf import OmegaConf
+import torch as th
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--config", type=str, default="config.yaml", help="Configure ouput format"
+    )
+    args = parser.parse_args()
+
+    config = OmegaConf.load(args.config)
+
     file_paths = get_image_file_paths()
     for file_path in file_paths:
         image_name = os.path.split(file_path)[1].split(".")[0]
@@ -53,14 +65,30 @@ def main():
             )
         )
 
-        # generate meshes
-        create_mesh(outpainted_image, outpainted_depth, image_name + "_foreground_")
-        create_mesh(background_image, background_depth, image_name + "_background_")
-        create_mesh(
-            stacked_soft_foregound_visibility_image,
-            outpainted_depth,
-            image_name + "_visibility_",
-        )
+        # display intermediate outputs.
+        if config.display_intermediate_output:
+            display_image(outpainted_image, "Outpainted Image")
+            display_image(outpainted_depth, "Outpainted Depth")
+            display_image(background_image, "Background Image")
+            display_image(alpha_matte, "Alpha Matte")
+            display_image(
+                stacked_soft_foregound_visibility_image,
+                "Soft Foreground Visibility Mask",
+            )
+
+        # generate and save required meshes.
+        if config.generate_meshes:
+            create_mesh(outpainted_image, outpainted_depth, image_name + "_foreground_")
+            create_mesh(background_image, background_depth, image_name + "_background_")
+            create_mesh(
+                stacked_soft_foregound_visibility_image,
+                outpainted_depth,
+                image_name + "_visibility_",
+            )
+
+        # sample and save novel views from the generated meshes.
+        if config.sample_novel_views:
+            sample_novel_views(image_name, config)
 
 
 if __name__ == "__main__":

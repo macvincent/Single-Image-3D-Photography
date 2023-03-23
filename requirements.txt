@@ -12,3 +12,7 @@ timm
 matplotlib
 imageio
 scipy
+copy
+tqdm
+imageio
+omegaconf
