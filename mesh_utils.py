@@ -102,9 +102,10 @@ def create_mesh(
 
 
 def get_rotated_frame(mesh, rotate_angle):
+    # TODO: Sample different trajectory types
     rotated_mesh = copy.deepcopy(mesh)
     rotate_to_torch_axis = rotated_mesh.get_rotation_matrix_from_xyz(
-        (0, 0, rotate_angle)
+        (0, rotate_angle, 0)
     )
     rotated_mesh.rotate(rotate_to_torch_axis, center=(0, 0, 0))
     vis = o3d.visualization.Visualizer()
