@@ -22,3 +22,7 @@ python main.py --config config.yaml
 ```
 
 For each image in the `images` folder the relevant meshes will be saved to the `meshes` folder and the output videos will be saved to the `outputs` folder.
+
+# Acknowledgments
+
+Our work builds upon `SLIDE: Single Image 3D Photography with Soft Layering and Depth-aware Inpainting` by [Jamapani et al. ICCV 2021 (Oral).](https://varunjampani.github.io/slide/). For code structure, we drew inspiration from `3D Photography using Context-aware Layered Depth Inpainting` by [Shih et al. CVPR 2020.](https://github.com/vt-vl-lab/3d-photo-inpainting/blob/master/README.md). Thank you to the authors of the latter paper for making their code available.

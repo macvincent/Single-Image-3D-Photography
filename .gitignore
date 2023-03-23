@@ -1,3 +1,4 @@
 *.ply
 __pycache__
 meshes
+outputs
