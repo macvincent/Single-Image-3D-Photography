@@ -165,6 +165,24 @@ def sample_novel_views(image_name, config):
 
         output_frames.append(novel_view)
 
+    for i in tqdm(range(num_frames_in_output_video - 1, -1, -1)):
+        rotate_angle = (angle_range[0] + angle_delta * i) * np.pi / 180
+        background_image = get_rotated_frame(background_mesh, rotate_angle) * 255
+        foreground_image = get_rotated_frame(foreground_mesh, rotate_angle) * 255
+        foreground_visibility_map = get_rotated_frame(
+            foreground_visibility_mesh, rotate_angle
+        )
+
+        novel_view = (
+            foreground_visibility_map * foreground_image
+            + (1 - foreground_visibility_map) * background_image
+        )
+        novel_view = cv2.flip(
+            np.clip(np.asarray(novel_view), 0, 255).astype(np.uint8), 1
+        )
+
+        output_frames.append(novel_view)
+
     os.makedirs("outputs", exist_ok=True)
     if config.save_output_in_gif_format:
         output_path = os.path.join(os.getcwd(), "outputs", f"{image_name}.gif")
