@@ -1,6 +1,6 @@
-# [Final Project CS231A] Sampling Novel Views from a Single 2D Image
+# Sampling Novel Views from a Single 2D Image
 
-Imagine walking into a lecture hall. As you walk along, more objects become visible to you and others slowly recede from your field of view. Now, imagine a different scenario. This time, we are given a picture of the lecture hall. A few seats are captured within the picture frame but most of the lecture hall is left off this image. Even without a complete picture of the room, we can imagine what we would see if we physically walked into the lecture hall. From that single picture, we have an expectation of how the image of the room would change as we focus on different portions of the scene. In this project, we simulate a similar experience. Given an input 2D RGB image, we will generate novel viewpoints that simulate a 3D interactive experience.
+Given an input RGB image, we simulate a 3D interactive experience by generating novel viewpoints to account for disocclusion. Builds upon SLIDE: Single Image 3D Photography with Soft Layering and Depth-aware Inpainting by Jamapani et al., ICCV 2021 (Oral). Unlike SLIDE, we outpaint the input image with a denoising probabilistic diffusion model, use a matting model to separate the background from the foreground image, and construct our meshes with the Open3D library in place of Tensorflow 3D.
 
 
 ![sample_output](https://github.com/macvincent/Sampling-Novel-Views-from-a-Single-2D-Image/blob/master/outputs/class.gif)
